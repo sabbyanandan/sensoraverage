@@ -43,4 +43,8 @@ sh data.sh
 
 == Dashboard
 
-Launch the `sensors.html` in the browser. (e.g., `file:///<FILE_LOCATION>/sensoraverage/sensors.html`)
+Launch the `sensors.html` in the browser (e.g., `file:///<FILE_LOCATION>/sensors.html`). This application opens a WebSocket connection at `ws://localhost:9292/websocket` to receive real-time data from the `websocket-sink` orchestrated by SCDF. The alert threshold is set to 80F; if the average temperature crosses the limit, the alert shows in the bottom.
+
+image::https://github.com/sabbyanandan/sensoraverage/raw/master/images/sensors.png[Streaming Pipeline]
+
+NOTE: `<FILE_LOCATION>` is the absolute path of the `sensors.html` artifact.
