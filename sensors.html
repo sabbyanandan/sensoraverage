@@ -1,0 +1,88 @@
+<style>
+    .tempAlert {
+        position: fixed;
+        width: 96%;
+        text-align: center;
+        font-size: 40px;
+        font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    }
+
+    .tempAlert-100100 {
+        bottom: 50px;
+    }
+
+    .tempAlert-100200 {
+        bottom: 100px;
+    }
+
+    .tempAlert-100300 {
+        bottom: 150px;
+    }
+</style>
+
+<div id="chart_div" style="width: 400px; height: 120px;"></div>
+<div id="tempAlert-100100" class="tempAlert tempAlert-100100"></div>
+<div id="tempAlert-100200" class="tempAlert tempAlert-100200"></div>
+<div id="tempAlert-100300" class="tempAlert tempAlert-100300"></div>
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<script>
+
+    google.charts.load('current', { 'packages': ['gauge'] });
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+
+        var data = google.visualization.arrayToDataTable([
+            ['Sensor', 'Value'],
+            ['SN-100100', 0],
+            ['SN-100200', 0],
+            ['SN-100300', 0]
+        ]);
+
+        var options = {
+            width: 1600, height: 600,
+            redFrom: 85, redTo: 100,
+            yellowFrom: 60, yellowTo: 85,
+            greenFrom: 0, greenTo: 60,
+            minorTicks: 20
+        };
+
+        var chart = new google.visualization.Gauge(document.getElementById('chart_div'));
+
+        chart.draw(data, options);
+
+        var ws = new WebSocket("ws://localhost:9292/websocket");
+        ws.onopen = function () {
+            console.log("Websocket connection open ...");
+        };
+
+        ws.onmessage = function (evt) {
+            var received_msg = JSON.parse(evt.data);
+            if (received_msg.id === 100100) {
+                data.setValue(0, 1, received_msg.average);
+                chart.draw(data, options);
+                decideAlerting(received_msg.id, received_msg.average, document.getElementById('tempAlert-100100'));
+            } else if (received_msg.id === 100200) {
+                data.setValue(1, 1, received_msg.average);
+                chart.draw(data, options);
+                decideAlerting(received_msg.id, received_msg.average, document.getElementById('tempAlert-100200'));
+            } else if (received_msg.id === 100300) {
+                data.setValue(2, 1, received_msg.average);
+                chart.draw(data, options);
+                decideAlerting(received_msg.id, received_msg.average, document.getElementById('tempAlert-100300'));
+            }
+            console.log("Message received for ... SN-" + received_msg.id + " .. with .. average temperature = " + received_msg.average);
+        };
+
+        function decideAlerting(sensorId, sensorTemp, alertDiv) {
+            alertDiv.innerHTML = "";
+            if (sensorTemp > 80) {
+                alertDiv.innerHTML = "<strong>Attention! 'SN-" + sensorId + "'</strong> is showing abnormal temperature (" + sensorTemp + "F).";
+                alertDiv.style.color = "red";
+            }
+        }
+    }
+
+</script>

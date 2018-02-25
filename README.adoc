@@ -1,0 +1,46 @@
+= Sensor Data Processing
+
+A demo to showcase IoT use-case orchestrated by Spring Cloud Data Flow.
+
+== Application
+A Spring Cloud Stream processor that uses Reactive Handler; specifically, link:https://projectreactor.io/[Project Reactor] `Flux` construct is used to calculate moving average of the sensor temperature.
+
+You can build the project via:
+
+[source,bash,options=nowrap]
+----
+mvn clean install
+----
+
+== Registeration
+Start the link:https://docs.spring.io/spring-cloud-dataflow/docs/1.3.1.RELEASE/reference/htmlsingle/#getting-started[Local-server] and the Shell. Register the following applications.
+
+[source,bash,options=nowrap]
+----
+app register --name http --type source --uri maven://org.springframework.cloud.stream.app:http-source-kafka-10:1.3.1.RELEASE
+app register --name sensoravg --type processor --uri file:///<FILE_LOCATION>/sensoraverage-0.0.1-SNAPSHOT.jar
+app register --name websocket --type sink --uri maven://org.springframework.cloud.stream.app:websocket-sink-kafka-10:1.3.1.RELEASE
+----
+
+NOTE: `<FILE_LOCATION>` is the absolute path of the `sensoraverage-0.0.1-SNAPSHOT.jar` artifact.
+
+== Streams
+Deploy the following streams.
+
+[source,bash,options=nowrap]
+----
+stream create foo --definition "http --server.port=9003 | sensoravg --spring.cloud.stream.bindings.output.contentType='application/json' | websocket --server.port=9000"
+stream deploy --name foo --properties "deployer.*.local.inheritLogging=true"
+----
+
+== Data
+The `data.sh` script generates random temperature for three sensors, which are identified by `100100`,`100200`, and `100300`. The generated temperatures posted to the `http-source` endpoint.
+
+[source,bash,options=nowrap]
+----
+sh data.sh
+----
+
+== Dashboard
+
+Launch the `sensors.html` in the browser. (e.g., `file:///<FILE_LOCATION>/sensoraverage/sensors.html`)
