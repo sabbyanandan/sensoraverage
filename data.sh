@@ -1,6 +1,6 @@
 set -e -u
 
-for i in {62..1000}
+for i in {0..3000}
 do
     low1=65
     high1=101
