@@ -3,7 +3,7 @@
 A demo to showcase IoT use-case orchestrated by Spring Cloud Data Flow.
 
 == Application
-A Spring Cloud Stream processor that uses Reactive Handler; specifically, link:https://projectreactor.io/[Project Reactor] `Flux` construct is used to calculate moving average of the sensor temperature.
+A Spring Cloud Stream processor that uses Reactive Handler; specifically, link:https://projectreactor.io/[Project Reactor] `Flux` construct is used to calculate moving average (every 3s) of the sensor temperature.
 
 You can build the project via:
 
@@ -45,6 +45,6 @@ sh data.sh
 
 Launch the `sensors.html` in the browser (e.g., `file:///<FILE_LOCATION>/sensors.html`). This application opens a WebSocket connection at `ws://localhost:9292/websocket` to receive real-time data from the `websocket-sink` orchestrated by SCDF. The alert threshold is set to 80F; if the average temperature crosses the limit, the alert shows in the bottom.
 
-image::https://github.com/sabbyanandan/sensoraverage/raw/master/images/sensors.png[Streaming Pipeline]
-
 NOTE: `<FILE_LOCATION>` is the absolute path of the `sensors.html` artifact.
+
+image::https://github.com/sabbyanandan/sensoraverage/raw/master/images/sensors.png[Streaming Pipeline]
